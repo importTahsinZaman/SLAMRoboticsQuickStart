@@ -17,9 +17,9 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
-@Disabled
-@TeleOp(name="MainOpMode")
-public class MainOpMode extends LinearOpMode  {
+//@Disabled
+@TeleOp(name="MainOpMode22280")
+public class MainOpMode2280 extends LinearOpMode  {
     private Motor fL, fR, bL, bR;
     private MecanumDrive m_drive;
     private GamepadEx driverController1;
@@ -28,7 +28,7 @@ public class MainOpMode extends LinearOpMode  {
     private Motor lLift, rLift;
     private MotorGroup lift;
 
-//    private Servo leftServo, rightServo;
+    private Servo leftArmServo, rightArmServo;
 
     private int liftPosition = 0;
 
@@ -68,20 +68,20 @@ public class MainOpMode extends LinearOpMode  {
         liftPosition = lLift.getCurrentPosition();
 //        Arrays.sort(LIFTPOSITIONS);
 
-//        leftServo = hardwareMap.get(Servo.class, "leftServo");
-//        rightServo = hardwareMap.get(Servo.class, "rightServo");
+        leftArmServo = hardwareMap.get(Servo.class, "leftArmServo");
+        rightArmServo = hardwareMap.get(Servo.class, "rightArmServo");
 
         waitForStart();
         while(opModeIsActive()){
             m_drive.driveRobotCentric(driverController1.getLeftX(), driverController1.getLeftY(), driverController1.getRightX());
 
-//            if(gamepad2.x){
-//                leftServo.setPosition(LEFT_SERVO_CLOSE_POSITION);
-//                rightServo.setPosition(RIGHT_SERVO_CLOSE_POSITION);
-//            }else if(gamepad2.b){
-//                leftServo.setPosition(LEFT_SERVO_OPEN_POSITION);
-//                rightServo.setPosition(RIGHT_SERVO_OPEN_POSITION);
-//            }
+            if(gamepad2.x){
+                leftArmServo.setPosition(.6);
+                rightArmServo.setPosition(.6);
+            }else if(gamepad2.b){
+                leftArmServo.setPosition(.2);
+                rightArmServo.setPosition(.2);
+            }
 
             // lift code
 
@@ -115,8 +115,8 @@ public class MainOpMode extends LinearOpMode  {
             telemetry.addData("Position Left:", lLift.getCurrentPosition());
             telemetry.addData("Position Right:", rLift.getCurrentPosition());
 
-//            telemetry.addData("leftServo Position:", leftServo.getPosition());
-//            telemetry.addData("rightServo Position", rightServo.getPosition());
+            telemetry.addData("left Arm Servo Position:", leftArmServo.getPosition());
+            telemetry.addData("right Arm Servo Position", rightArmServo.getPosition());
 
             telemetry.update();
 
