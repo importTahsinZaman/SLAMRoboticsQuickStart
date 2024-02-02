@@ -18,8 +18,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @Disabled
-@TeleOp(name="MainOpMode")
-public class MainOpMode extends LinearOpMode  {
+@TeleOp(name="MainOpMode22282")
+public class MainOpMode22282 extends LinearOpMode  {
     private Motor fL, fR, bL, bR;
     private MecanumDrive m_drive;
     private GamepadEx driverController1;
@@ -29,6 +29,8 @@ public class MainOpMode extends LinearOpMode  {
     private MotorGroup lift;
 
 //    private Servo leftServo, rightServo;
+
+    private int liftPosition = 0;
 
     @Override
     public void runOpMode() throws InterruptedException{
@@ -59,41 +61,19 @@ public class MainOpMode extends LinearOpMode  {
 
         lift = new MotorGroup(lLift, rLift);
 
-        lift.setRunMode(Motor.RunMode.PositionControl);
-        lift.setPositionCoefficient(LIFT_POSITION_COEFFICIENT);
-        lift.setPositionTolerance(LIFT_POSITION_TOLERANCE);
+//        lift.setRunMode(Motor.RunMode.PositionControl);
+//        lift.setPositionCoefficient(LIFT_POSITION_COEFFICIENT);
+//        lift.setPositionTolerance(LIFT_POSITION_TOLERANCE);
 
-        int targetLiftPosition = lLift.getCurrentPosition();
+        liftPosition = lLift.getCurrentPosition();
+//        Arrays.sort(LIFTPOSITIONS);
 
 //        leftServo = hardwareMap.get(Servo.class, "leftServo");
 //        rightServo = hardwareMap.get(Servo.class, "rightServo");
 
         waitForStart();
         while(opModeIsActive()){
-            if (gamepad2.right_trigger > 0){
-                targetLiftPosition += gamepad2.right_trigger * 25;
-            } else if (gamepad2.left_trigger > 0) {
-                targetLiftPosition -= gamepad2.left_trigger * 25;
-            }
-
-            if (targetLiftPosition < 0){
-                targetLiftPosition = 0;
-            }
-            if (targetLiftPosition > 3300){
-                targetLiftPosition = 3300;
-            }
-
-            lift.setTargetPosition(targetLiftPosition);
-
-            if(lift.atTargetPosition()){
-                lift.stopMotor(); // same as .set(0)??? test this!
-            }else{
-                lift.set(1);
-            }
-
-
-
-
+            m_drive.driveRobotCentric(driverController1.getLeftX(), driverController1.getLeftY(), driverController1.getRightX());
 
 //            if(gamepad2.x){
 //                leftServo.setPosition(LEFT_SERVO_CLOSE_POSITION);
@@ -103,9 +83,40 @@ public class MainOpMode extends LinearOpMode  {
 //                rightServo.setPosition(RIGHT_SERVO_OPEN_POSITION);
 //            }
 
-            m_drive.driveRobotCentric(driverController1.getLeftX(), driverController1.getLeftY(), driverController1.getRightX());
+            // lift code
 
-            telemetry.addData("Lift Target Position:", targetLiftPosition);
+//            if (gamepad2.right_trigger > 0){
+//                liftPosition += gamepad2.right_trigger;
+//            } else if (gamepad2.left_trigger > 0) {
+//                liftPosition -= gamepad2.left_trigger;
+//            }
+//
+//            if (liftPosition < 0){
+//                liftPosition = 0;
+//            }
+//            if (liftPosition > 3300){
+//                liftPosition = 3300;
+//            }
+//
+//            lift.setTargetPosition(liftPosition);
+//
+//            if(lift.atTargetPosition()){
+//                lift.set(0);
+//            }else{
+//                lift.set(1);
+//            }
+
+            if (gamepad2.right_trigger > 0){
+                lLift.set(gamepad2.right_trigger);
+                rLift.set(gamepad2.right_trigger);
+            } else if (gamepad1.left_trigger > 0)  {
+                lLift.set(-gamepad1.left_trigger);
+                rLift.set(-gamepad1.left_trigger);
+            }
+
+            //end lift code
+
+            telemetry.addData("Lift Target Position:", liftPosition);
             telemetry.addData("Lift Position Left:", lLift.getCurrentPosition());
             telemetry.addData("Lift Position Right:", rLift.getCurrentPosition());
 

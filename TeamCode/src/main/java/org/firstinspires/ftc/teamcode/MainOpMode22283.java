@@ -18,8 +18,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
 @Disabled
-@TeleOp(name="MainOpMode")
-public class MainOpMode extends LinearOpMode  {
+@TeleOp(name="MainOpMode22283")
+public class MainOpMode22283 extends LinearOpMode  {
     private Motor fL, fR, bL, bR;
     private MecanumDrive m_drive;
     private GamepadEx driverController1;
@@ -71,9 +71,9 @@ public class MainOpMode extends LinearOpMode  {
         waitForStart();
         while(opModeIsActive()){
             if (gamepad2.right_trigger > 0){
-                targetLiftPosition += gamepad2.right_trigger * 25;
+                targetLiftPosition += gamepad2.right_trigger * 15;
             } else if (gamepad2.left_trigger > 0) {
-                targetLiftPosition -= gamepad2.left_trigger * 25;
+                targetLiftPosition -= gamepad2.left_trigger * 15;
             }
 
             if (targetLiftPosition < 0){
@@ -88,12 +88,9 @@ public class MainOpMode extends LinearOpMode  {
             if(lift.atTargetPosition()){
                 lift.stopMotor(); // same as .set(0)??? test this!
             }else{
-                lift.set(1);
+                lift.set(0.5);
+
             }
-
-
-
-
 
 //            if(gamepad2.x){
 //                leftServo.setPosition(LEFT_SERVO_CLOSE_POSITION);

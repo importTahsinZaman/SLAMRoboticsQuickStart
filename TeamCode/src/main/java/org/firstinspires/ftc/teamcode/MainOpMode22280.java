@@ -1,15 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
-import static org.firstinspires.ftc.teamcode.RobotConstants.LEFT_SERVO_CLOSE_POSITION;
-import static org.firstinspires.ftc.teamcode.RobotConstants.LEFT_SERVO_OPEN_POSITION;
 import static org.firstinspires.ftc.teamcode.RobotConstants.LIFT_POSITION_COEFFICIENT;
 import static org.firstinspires.ftc.teamcode.RobotConstants.LIFT_POSITION_TOLERANCE;
-import static org.firstinspires.ftc.teamcode.RobotConstants.RIGHT_SERVO_CLOSE_POSITION;
-import static org.firstinspires.ftc.teamcode.RobotConstants.RIGHT_SERVO_OPEN_POSITION;
 
 import com.arcrobotics.ftclib.drivebase.MecanumDrive;
 import com.arcrobotics.ftclib.gamepad.GamepadEx;
-import com.arcrobotics.ftclib.gamepad.GamepadKeys;
+import com.arcrobotics.ftclib.hardware.ServoEx;
+import com.arcrobotics.ftclib.hardware.SimpleServo;
 import com.arcrobotics.ftclib.hardware.motors.Motor;
 import com.arcrobotics.ftclib.hardware.motors.MotorGroup;
 import com.qualcomm.robotcore.eventloop.opmode.Disabled;
@@ -17,9 +14,11 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.hardware.Servo;
 
-//@Disabled
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
+
+
 @TeleOp(name="MainOpMode22280")
-public class MainOpMode2280 extends LinearOpMode  {
+public class MainOpMode22280 extends LinearOpMode  {
     private Motor fL, fR, bL, bR;
     private MecanumDrive m_drive;
     private GamepadEx driverController1;
@@ -28,9 +27,7 @@ public class MainOpMode2280 extends LinearOpMode  {
     private Motor lLift, rLift;
     private MotorGroup lift;
 
-    private Servo leftArmServo, rightArmServo;
-
-    private int liftPosition = 0;
+//    private Servo leftServo, rightServo;
 
     @Override
     public void runOpMode() throws InterruptedException{
@@ -48,8 +45,8 @@ public class MainOpMode2280 extends LinearOpMode  {
         bR.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         m_drive = new MecanumDrive(fL, fR, bL, bR);
 
-        lLift = new Motor(hardwareMap, "lLift", Motor.GoBILDA.RPM_312);
-        rLift = new Motor(hardwareMap, "rLift", Motor.GoBILDA.RPM_312);
+        lLift = new Motor(hardwareMap, "lLift", Motor.GoBILDA.RPM_223);
+        rLift = new Motor(hardwareMap, "rLift", Motor.GoBILDA.RPM_223);
 
         lLift.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         rLift.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
@@ -65,58 +62,55 @@ public class MainOpMode2280 extends LinearOpMode  {
         lift.setPositionCoefficient(LIFT_POSITION_COEFFICIENT);
         lift.setPositionTolerance(LIFT_POSITION_TOLERANCE);
 
-        liftPosition = lLift.getCurrentPosition();
-//        Arrays.sort(LIFTPOSITIONS);
+        int targetLiftPosition = lLift.getCurrentPosition();
 
-        leftArmServo = hardwareMap.get(Servo.class, "leftArmServo");
-        rightArmServo = hardwareMap.get(Servo.class, "rightArmServo");
+//        leftServo = hardwareMap.get(Servo.class, "leftServo");
+//        rightServo = hardwareMap.get(Servo.class, "rightServo");
 
         waitForStart();
         while(opModeIsActive()){
-            m_drive.driveRobotCentric(driverController1.getLeftX(), driverController1.getLeftY(), driverController1.getRightX());
-
-            if(gamepad2.x){
-                leftArmServo.setPosition(.6);
-                rightArmServo.setPosition(.6);
-            }else if(gamepad2.b){
-                leftArmServo.setPosition(.2);
-                rightArmServo.setPosition(.2);
-            }
-
-            // lift code
-
             if (gamepad2.right_trigger > 0){
-                liftPosition += gamepad2.right_trigger;
+                targetLiftPosition += gamepad2.right_trigger;
             } else if (gamepad2.left_trigger > 0) {
-                liftPosition -= gamepad2.left_trigger;
+                targetLiftPosition -= gamepad2.left_trigger ;
             }
 
-            if (liftPosition < 0){
-                liftPosition = 0;
+            if (targetLiftPosition < 0){
+                targetLiftPosition = 0;
             }
-            if (liftPosition > 3300){
-                liftPosition = 3300;
+            if (targetLiftPosition > 3300){
+                targetLiftPosition = 3300;
             }
 
-            lift.setTargetPosition(liftPosition);
+            lift.setTargetPosition(targetLiftPosition);
 
             if(lift.atTargetPosition()){
-                lift.set(0);
+                lift.set(0); // same as .set(0)??? test this!
             }else{
                 lift.set(1);
             }
 
-            //end lift code
 
-            telemetry.addData("Lift Target Position:", liftPosition);
+
+
+
+//            if(gamepad2.x){
+//                leftServo.setPosition(LEFT_SERVO_CLOSE_POSITION);
+//                rightServo.setPosition(RIGHT_SERVO_CLOSE_POSITION);
+//            }else if(gamepad2.b){
+//                leftServo.setPosition(LEFT_SERVO_OPEN_POSITION);
+//                rightServo.setPosition(RIGHT_SERVO_OPEN_POSITION);
+//            }
+
+            m_drive.driveRobotCentric(driverController1.getLeftX(), driverController1.getLeftY(), driverController1.getRightX());
+
+            telemetry.addData("Lift Target Position:", targetLiftPosition);
             telemetry.addData("Lift Position Left:", lLift.getCurrentPosition());
             telemetry.addData("Lift Position Right:", rLift.getCurrentPosition());
 
-            telemetry.addData("Position Left:", lLift.getCurrentPosition());
-            telemetry.addData("Position Right:", rLift.getCurrentPosition());
 
-            telemetry.addData("left Arm Servo Position:", leftArmServo.getPosition());
-            telemetry.addData("right Arm Servo Position", rightArmServo.getPosition());
+//            telemetry.addData("leftServo Position:", leftServo.getPosition());
+//            telemetry.addData("rightServo Position", rightServo.getPosition());
 
             telemetry.update();
 
