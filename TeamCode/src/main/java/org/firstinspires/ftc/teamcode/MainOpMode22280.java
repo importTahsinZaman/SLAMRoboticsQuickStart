@@ -32,8 +32,8 @@ public class MainOpMode22280 extends LinearOpMode  {
     private ServoEx leftClawServo, rightClawServo;
 
     public void closeClaw(){
-        leftClawServo.setPosition(0.35);
-        rightClawServo.setPosition(0.35);
+        leftClawServo.setPosition(0.5);
+        rightClawServo.setPosition(0.5);
     }
 
     public void openClaw(){
@@ -53,10 +53,10 @@ public class MainOpMode22280 extends LinearOpMode  {
         driverController1 = new GamepadEx(gamepad1);
         driverController2 = new GamepadEx(gamepad2);
 
-        fL = new Motor(hardwareMap, "fL"); //port 0
-        fR = new Motor(hardwareMap, "fR"); //port 1
-        bL = new Motor(hardwareMap, "bL"); //port 2
-        bR = new Motor(hardwareMap, "bR"); //port 3
+        fL = new Motor(hardwareMap, "fL");
+        fR = new Motor(hardwareMap, "bR");
+        bL = new Motor(hardwareMap, "bL");
+        bR = new Motor(hardwareMap, "fR");
 
         fL.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         fR.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
@@ -96,9 +96,12 @@ public class MainOpMode22280 extends LinearOpMode  {
             if (gamepad2.right_bumper){
                 targetLiftPosition = 5000;
                 maxLiftSpeed = true;
+                positionArmToScore();
             }else if (gamepad2.left_bumper) {
                 targetLiftPosition = 0;
                 maxLiftSpeed = true;
+                positionArmToRest();
+                closeClaw();
             }
             else if (gamepad2.right_trigger > 0){
                 targetLiftPosition += gamepad2.right_trigger * 25;
@@ -133,18 +136,19 @@ public class MainOpMode22280 extends LinearOpMode  {
                 }
             }
 
-            if(targetLiftPosition < 2000){
-                positionArmToRest();
-                closeClaw();
-            }else if(gamepad2.a){
+//            if(targetLiftPosition <= 2000 && lLift.getCurrentPosition() <= 700){
+//                positionArmToRest();
+//                closeClaw();
+//            }else
+            if(gamepad2.a){
                 positionArmToRest();
             }else if(gamepad2.y){
                 positionArmToScore();
             }
-
-            if(lLift.getCurrentPosition() > 4000){
-                positionArmToScore();
-            }
+//
+//            if(lLift.getCurrentPosition() > 4000){
+//                positionArmToScore();
+//            }
 
             if(gamepad2.x){
                 closeClaw();
@@ -152,7 +156,7 @@ public class MainOpMode22280 extends LinearOpMode  {
                 openClaw();
             }
 
-            m_drive.driveRobotCentric(driverController1.getLeftX(), driverController1.getLeftY(), driverController1.getRightX());
+            m_drive.driveRobotCentric(-driverController1.getLeftX(), driverController1.getLeftY(), driverController1.getRightX());
 
             telemetry.addData("Lift Target Position:", targetLiftPosition);
             telemetry.addData("Lift Position Left:", lLift.getCurrentPosition());

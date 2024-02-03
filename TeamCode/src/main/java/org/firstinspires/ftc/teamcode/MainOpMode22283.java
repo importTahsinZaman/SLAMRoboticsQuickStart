@@ -33,8 +33,28 @@ public class MainOpMode22283 extends LinearOpMode  {
     private MotorGroup lift;
     private boolean maxLiftSpeed = false;
 
-//    private ServoEx leftArmServo, rightArmServo;
+    private ServoEx rightArmServo;
+    private ServoEx leftClawServo, rightClawServo;
 
+    private ServoEx airplaneLauncher;
+
+    public void closeClaw(){
+        leftClawServo.setPosition(0.35);
+        rightClawServo.setPosition(0.35);
+    }
+
+    public void openClaw(){
+        leftClawServo.setPosition(0.65);
+        rightClawServo.setPosition(0.65);
+    }
+
+    public void positionArmToScore(){
+        rightArmServo.setPosition(.5);
+    }
+
+    public void positionArmToRest(){
+        rightArmServo.setPosition(.1);
+    }
     @Override
     public void runOpMode() throws InterruptedException{
         driverController1 = new GamepadEx(gamepad1);
@@ -51,8 +71,8 @@ public class MainOpMode22283 extends LinearOpMode  {
         bR.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         m_drive = new MecanumDrive(fL, fR, bL, bR);
 
-        lLift = new Motor(hardwareMap, "lLift", Motor.GoBILDA.RPM_223);
-        rLift = new Motor(hardwareMap, "rLift", Motor.GoBILDA.RPM_223);
+        lLift = new Motor(hardwareMap, "lLift", Motor.GoBILDA.RPM_312);
+        rLift = new Motor(hardwareMap, "rLift", Motor.GoBILDA.RPM_312);
 
         lLift.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
         rLift.setZeroPowerBehavior(Motor.ZeroPowerBehavior.BRAKE);
@@ -70,15 +90,20 @@ public class MainOpMode22283 extends LinearOpMode  {
 
         int targetLiftPosition = lLift.getCurrentPosition();
 
-//        leftArmServo = hardwareMap.get(Servo.class, "leftArmServo");
-//        rightArmServo = new SimpleServo(hardwareMap, "rightArmServo", 0, 360, AngleUnit.DEGREES);
+        rightArmServo = new SimpleServo(hardwareMap, "rightArmServo", 0, 360, AngleUnit.DEGREES);
 
-//        rightArmServo.setDirection(Servo.Direction.REVERSE);
+        rightClawServo = new SimpleServo(hardwareMap, "rightClawServo", 0, 360, AngleUnit.DEGREES);
+        leftClawServo = new SimpleServo(hardwareMap, "leftClawServo", 0, 360, AngleUnit.DEGREES);
+
+        leftClawServo.setInverted(true);
+
+        airplaneLauncher = new SimpleServo(hardwareMap, "airplaneLauncher", 0, 360, AngleUnit.DEGREES);
+        closeClaw();
 
         waitForStart();
         while(opModeIsActive()){
             if (gamepad2.right_bumper){
-                targetLiftPosition = 3300;
+                targetLiftPosition = 2500;
                 maxLiftSpeed = true;
             }else if (gamepad2.left_bumper) {
                 targetLiftPosition = 0;
@@ -96,8 +121,8 @@ public class MainOpMode22283 extends LinearOpMode  {
                 targetLiftPosition = 0;
                 maxLiftSpeed = false;
             }
-            if (targetLiftPosition > 3500){
-                targetLiftPosition = 3300;
+            if (targetLiftPosition > 2600){
+                targetLiftPosition = 2300;
                 maxLiftSpeed = false;
             }
 
@@ -110,32 +135,53 @@ public class MainOpMode22283 extends LinearOpMode  {
                 if(maxLiftSpeed){
                     lift.set(1);
                 }
-                else if (lLift.getCurrentPosition() <= 700 || lLift.getCurrentPosition() >= 2300){
+                else if (lLift.getCurrentPosition() <= 700 || lLift.getCurrentPosition() >= 1200){
                     lift.set(0.2);
                 }else{
                     lift.set(0.85);
                 }
             }
 
-//            if(gamepad2.y){
-//                leftArmServo.setPosition(0.2);
-//                rightArmServo.setPosition(.35);
-//            }else if(gamepad2.a){
-//                leftArmServo.setPosition(0.8);
-//                rightArmServo.setPosition(.75);
+            if(gamepad1.right_trigger > 0){
+                airplaneLauncher.rotateBy(10);
+            }else if (gamepad1.left_trigger>0){
+                airplaneLauncher.rotateBy(-10);
+            }
+
+//            if(targetLiftPosition < 800){
+//                positionArmToRest();
+//                closeClaw();
+//            }else
+
+            if(gamepad2.a){
+                positionArmToRest();
+            }else if(gamepad2.y){
+                positionArmToScore();
+            }
+
+//            if(lLift.getCurrentPosition() > 1000){
+//                positionArmToScore();
 //            }
 
-            m_drive.driveRobotCentric(driverController1.getLeftX(), driverController1.getLeftY(), driverController1.getRightX());
+            if(gamepad2.x){
+                closeClaw();
+            }else if(gamepad2.b){
+                openClaw();
+            }
+
+            m_drive.driveRobotCentric(-driverController1.getLeftX(), -driverController1.getLeftY(), driverController1.getRightX());
 
             telemetry.addData("Lift Target Position:", targetLiftPosition);
             telemetry.addData("Lift Position Left:", lLift.getCurrentPosition());
             telemetry.addData("Lift Position Right:", rLift.getCurrentPosition());
 
+            telemetry.addData("rightArmServo Position", rightArmServo.getPosition());
 
-//            telemetry.addData("leftArmServo Position:", leftArmServo.getPosition());
-//            telemetry.addData("rightArmServo Position", rightArmServo.getPosition());
+            telemetry.addData("rightClawServo Position", rightClawServo.getPosition());
+            telemetry.addData("leftClawServo Position", leftClawServo.getPosition());
 
             telemetry.update();
+
         }
     }
 }
